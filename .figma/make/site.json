@@ -1,0 +1,10 @@
+{
+  "description": "This web application enables drivers to manage bus routes, update locations, and communicate real-time stop information to passengers, enhancing travel efficiency.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Parul University — Campus Bus Transit · Project Presentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#12213B; --navy-2:#1C3363; --amber:#F2B705; --red:#D7263D;
+    --blue:#2A5CD1; --green:#1F9D55; --paper:#EEF1F6; --card:#FFFFFF;
+    --ink:#12213B; --ink-soft:#5A6480; --line:#DDE3EE;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:#0C1526; color:var(--ink);
+    font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif;letter-spacing:-.01em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  code{font-family:'IBM Plex Mono',monospace;background:#E4ECFF;color:#26407e;padding:2px 7px;border-radius:6px;font-size:.9em;}
+
+  /* Deck / slides */
+  .deck{max-width:1180px;margin:0 auto;padding:40px 20px 80px;}
+  .slide{
+    background:var(--paper); border-radius:22px; margin:0 0 34px; padding:56px 60px;
+    min-height:600px; box-shadow:0 30px 60px -30px rgba(0,0,0,.6);
+    display:flex; flex-direction:column; position:relative; overflow:hidden;
+    scroll-margin-top:20px;
+  }
+  .slide::after{
+    content:attr(data-num); position:absolute; right:34px; bottom:26px;
+    font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-soft); opacity:.6;
+  }
+  .eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);font-weight:700;margin:0 0 12px;}
+  .slide h2{font-size:38px;margin:0 0 8px;font-weight:700;}
+  .slide .lead{font-size:18px;color:var(--ink-soft);margin:0 0 28px;line-height:1.55;max-width:820px;}
+
+  /* Title slide */
+  .title{
+    background:linear-gradient(160deg,var(--navy) 0%,#0E1B33 60%,#0A1428 100%);
+    color:#fff; border-top:5px solid var(--amber); justify-content:center;
+  }
+  .title .brandline{display:flex;align-items:center;gap:16px;margin-bottom:36px;}
+  .title .mark{width:64px;height:64px;border-radius:16px;background:var(--amber);color:var(--navy);
+    display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;font-size:26px;}
+  .title .eyebrow{color:#B9C4E0;}
+  .title h1{font-size:62px;line-height:1.02;margin:0 0 18px;font-weight:700;}
+  .title .sub{font-size:20px;color:#C6D0EA;max-width:760px;line-height:1.5;}
+  .title .meta{display:flex;gap:14px;flex-wrap:wrap;margin-top:40px;}
+  .title .pill{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);
+    padding:9px 16px;border-radius:999px;font-size:13.5px;color:#E4EBFB;font-weight:600;}
+  .title .pill b{color:var(--amber);}
+
+  /* Bullets */
+  ul.feat{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  ul.feat li{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px 22px;}
+  ul.feat li .ic{font-size:22px;}
+  ul.feat li h3{font-size:16px;margin:10px 0 5px;}
+  ul.feat li p{margin:0;font-size:13.5px;color:var(--ink-soft);line-height:1.5;}
+
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;}
+  .col-text ul{margin:0;padding-left:20px;}
+  .col-text li{font-size:16px;line-height:1.9;color:#28324c;}
+  .col-text li b{color:var(--ink);}
+
+  /* Screenshot frames */
+  .shot{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 20px 40px -24px rgba(18,33,59,.5);}
+  .shot .bar{background:var(--navy);height:34px;display:flex;align-items:center;gap:7px;padding:0 14px;}
+  .shot .bar .dot{width:11px;height:11px;border-radius:50%;background:#39456b;}
+  .shot .bar .dot.a{background:var(--amber);}
+  .shot .bar .url{margin-left:12px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#9FB0DC;}
+  .shot img{display:block;width:100%;height:auto;}
+  .callouts{margin-top:22px;display:flex;gap:14px;flex-wrap:wrap;}
+  .callout{flex:1;min-width:200px;background:#fff;border:1px solid var(--line);border-left:3px solid var(--blue);
+    border-radius:10px;padding:14px 16px;}
+  .callout b{display:block;font-size:14px;margin-bottom:3px;}
+  .callout span{font-size:13px;color:var(--ink-soft);line-height:1.5;}
+
+  /* Architecture diagram */
+  .arch{display:flex;align-items:stretch;gap:0;margin-top:10px;flex-wrap:wrap;}
+  .node{flex:1;min-width:180px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:22px;position:relative;}
+  .node h3{margin:0 0 8px;font-size:16px;}
+  .node p{margin:0;font-size:13px;color:var(--ink-soft);line-height:1.5;}
+  .node .tag{position:absolute;top:-11px;left:22px;background:var(--navy);color:#fff;font-size:10.5px;
+    letter-spacing:.08em;text-transform:uppercase;font-weight:700;padding:3px 9px;border-radius:6px;}
+  .arrow{display:flex;align-items:center;justify-content:center;padding:0 14px;color:var(--blue);font-size:26px;font-weight:700;}
+  @media(max-width:820px){.arrow{transform:rotate(90deg);padding:8px 0;}.arch{flex-direction:column;}}
+
+  .formula{background:var(--navy);color:#fff;border-radius:16px;padding:30px 34px;margin-top:8px;}
+  .formula .eq{font-family:'IBM Plex Mono',monospace;font-size:19px;line-height:1.9;color:#E4EBFB;}
+  .formula .eq b{color:var(--amber);}
+  .formula code{background:rgba(255,255,255,.12);color:#fff;}
+  .formula .note{margin-top:16px;font-size:14px;color:#B9C4E0;line-height:1.6;}
+
+  .stack{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .stack .box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;}
+  .stack .box h3{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--blue);}
+  .stack .box ul{margin:0;padding-left:18px;}
+  .stack .box li{font-size:14px;line-height:1.8;color:#28324c;}
+
+  .end{background:linear-gradient(160deg,var(--navy) 0%,#0E1B33 100%);color:#fff;justify-content:center;text-align:center;align-items:center;}
+  .end h2{font-size:46px;color:#fff;}
+  .end p{font-size:19px;color:#C6D0EA;max-width:680px;line-height:1.6;}
+  .end .amber{color:var(--amber);}
+
+  /* Floating nav */
+  .navbar{position:fixed;top:0;left:0;right:0;background:rgba(12,21,38,.9);backdrop-filter:blur(8px);
+    border-bottom:1px solid rgba(255,255,255,.08);z-index:20;display:flex;align-items:center;
+    justify-content:space-between;padding:12px 22px;}
+  .navbar .t{color:#fff;font-family:'Space Grotesk';font-weight:600;font-size:14px;display:flex;align-items:center;gap:10px;}
+  .navbar .t .m{width:26px;height:26px;border-radius:7px;background:var(--amber);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;}
+  .navbar .hint{color:#8CA1D6;font-size:12px;}
+  .deck{padding-top:88px;}
+  @media print{
+    @page{size:1280px 720px;margin:0;}
+    .navbar{display:none;}
+    html,body{background:#fff;}
+    .deck{padding:0;max-width:none;margin:0;}
+    .slide{
+      box-shadow:none;border:0;border-radius:0;margin:0;
+      width:1280px;height:720px;min-height:720px;
+      page-break-after:always;break-after:page;overflow:hidden;
+      padding:52px 60px;justify-content:center;
+    }
+    .slide:last-child{page-break-after:auto;}
+    .slide.title,.slide.end{justify-content:center;}
+    .slide h2{font-size:30px;}
+    .slide .lead{font-size:15px;margin-bottom:16px;}
+    .shot{width:max-content;max-width:100%;margin:0 auto;}
+    .shot img{max-height:340px;width:auto;}
+    .shot .bar{height:26px;}
+    .callouts{margin-top:14px;}
+    .callout{padding:10px 12px;}
+    .callout b{font-size:12.5px;}
+    .callout span{font-size:11.5px;}
+    ul.feat li{padding:14px 16px;}
+    ul.feat li h3{margin:6px 0 3px;font-size:15px;}
+    ul.feat li p{font-size:12.5px;}
+    .formula{padding:24px 28px;}
+    .formula .eq{font-size:16px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <div class="t"><span class="m">PU</span> Campus Bus Transit — Project Presentation</div>
+  <div class="hint">Use ↑ ↓ arrow keys to move between slides · Press Ctrl/Cmd + P to export as PDF</div>
+</div>
+
+<div class="deck">
+
+  <!-- 1. TITLE -->
+  <section class="slide title" data-num="01">
+    <div class="brandline">
+      <div class="mark">PU</div>
+      <div><div class="eyebrow">Parul University · Minor Project</div></div>
+    </div>
+    <h1>Campus Bus Transit<br>Live Tracker &amp; Arrival Predictor</h1>
+    <div class="sub">A web platform where drivers report their live stop and GPS location, and students see exactly where their bus is, how full it is, and when it will arrive — powered by a Python backend.</div>
+    <div class="meta">
+      <span class="pill"><b>Frontend:</b> React + Vite + Tailwind</span>
+      <span class="pill"><b>Backend:</b> Python (HTTP API)</span>
+      <span class="pill"><b>Live:</b> GPS location sharing</span>
+    </div>
+  </section>
+
+  <!-- 2. PROBLEM -->
+  <section class="slide" data-num="02">
+    <p class="eyebrow">The problem</p>
+    <h2>Students wait, without knowing when the bus will come</h2>
+    <p class="lead">Parul University runs many campus buses across Vadodara, but riders have no reliable way to know a bus's real position or arrival time.</p>
+    <ul class="feat">
+      <li><div class="ic">⏳</div><h3>No live position</h3><p>Students stand at stops with no idea if the bus already left or is 20 minutes away.</p></li>
+      <li><div class="ic">🚌</div><h3>Overcrowding</h3><p>No visibility into how many seats are free before the bus arrives.</p></li>
+      <li><div class="ic">📞</div><h3>Guesswork &amp; calls</h3><p>Arrival times are shared informally over phone calls and word of mouth.</p></li>
+      <li><div class="ic">🗺️</div><h3>Expensive GPS systems</h3><p>Commercial fleet-tracking hardware is costly to install on every bus.</p></li>
+    </ul>
+  </section>
+
+  <!-- 3. SOLUTION -->
+  <section class="slide" data-num="03">
+    <p class="eyebrow">Our solution</p>
+    <h2>A driver-reported, GPS-optional tracking system</h2>
+    <p class="lead">Drivers update their current stop and can share live GPS with one tap. The Python backend predicts arrival times from average speed and traffic — no expensive hardware required.</p>
+    <ul class="feat">
+      <li><div class="ic">📍</div><h3>Manual stop reporting</h3><p>Driver taps "Reached next stop" — works even with no GPS signal.</p></li>
+      <li><div class="ic">🛰️</div><h3>One-tap live GPS</h3><p>Optional real-time location streamed to riders on a live map.</p></li>
+      <li><div class="ic">⏱️</div><h3>Predicted arrival</h3><p>ETA to every stop, computed on the Python server from average speed.</p></li>
+      <li><div class="ic">💺</div><h3>Seats &amp; speed</h3><p>Riders see live seat count and average speed before boarding.</p></li>
+    </ul>
+  </section>
+
+  <!-- 4. FEATURES -->
+  <section class="slide" data-num="04">
+    <p class="eyebrow">Feature set</p>
+    <h2>What the platform does</h2>
+    <ul class="feat">
+      <li><div class="ic">🗂️</div><h3>Live departure board</h3><p>All buses, their current stop, status, ETA and seats — searchable and filterable by route.</p></li>
+      <li><div class="ic">🧭</div><h3>Track a bus</h3><p>Stop-by-stop rail, "bus is here now", live map, average speed and time-to-destination.</p></li>
+      <li><div class="ic">🎛️</div><h3>Driver console</h3><p>Report stop, edit seats, set speed &amp; traffic, share GPS, and add a brand-new bus.</p></li>
+      <li><div class="ic">⭐</div><h3>Ride feedback</h3><p>Students rate trips and leave comments, stored on the backend.</p></li>
+    </ul>
+  </section>
+
+  <!-- 5. SHOT: BOARD -->
+  <section class="slide" data-num="05">
+    <p class="eyebrow">Screen · Passenger</p>
+    <h2>Live departure board</h2>
+    <div class="shot">
+      <div class="bar"><span class="dot a"></span><span class="dot"></span><span class="dot"></span><span class="url">parul-campus-transit · Departures</span></div>
+      <img src="img/board.png" alt="Departure board screenshot">
+    </div>
+    <div class="callouts">
+      <div class="callout"><b>Currently at</b><span>Shows the exact stop each bus last reported, plus its next stop.</span></div>
+      <div class="callout"><b>Arrives at end</b><span>Predicted minutes to the final campus stop, refreshed live.</span></div>
+      <div class="callout"><b>Seats</b><span>Real-time occupancy so riders can pick a less-crowded bus.</span></div>
+    </div>
+  </section>
+
+  <!-- 6. SHOT: TRACK -->
+  <section class="slide" data-num="06">
+    <p class="eyebrow">Screen · Passenger</p>
+    <h2>Track a bus — live map &amp; ETA</h2>
+    <div class="shot">
+      <div class="bar"><span class="dot a"></span><span class="dot"></span><span class="dot"></span><span class="url">parul-campus-transit · Track Bus</span></div>
+      <img src="img/track.png" alt="Track bus screenshot">
+    </div>
+    <div class="callouts">
+      <div class="callout"><b>Live GPS map</b><span>OpenStreetMap marker updates when the driver shares location.</span></div>
+      <div class="callout"><b>Stop-by-stop</b><span>Each stop shows "passed", "here now", or minutes away.</span></div>
+      <div class="callout"><b>Avg speed &amp; ETA</b><span>Live trip stats computed by the Python backend.</span></div>
+    </div>
+  </section>
+
+  <!-- 7. SHOT: DRIVER -->
+  <section class="slide" data-num="07">
+    <p class="eyebrow">Screen · Driver</p>
+    <h2>Driver console &amp; location sharing</h2>
+    <div class="shot">
+      <div class="bar"><span class="dot a"></span><span class="dot"></span><span class="dot"></span><span class="url">parul-campus-transit · Driver Console</span></div>
+      <img src="img/driver.png" alt="Driver console screenshot">
+    </div>
+    <div class="callouts">
+      <div class="callout"><b>📍 Share my live location</b><span>One tap streams the phone's real GPS to every rider.</span></div>
+      <div class="callout"><b>Report current stop</b><span>"Previous / Reached next stop" moves the bus along the route.</span></div>
+      <div class="callout"><b>+ Add a new bus</b><span>Register a new bus with route, plate and capacity on the fly.</span></div>
+    </div>
+  </section>
+
+  <!-- 8. SHOT: FEEDBACK -->
+  <section class="slide" data-num="08">
+    <p class="eyebrow">Screen · Passenger</p>
+    <h2>Ride feedback</h2>
+    <div class="shot">
+      <div class="bar"><span class="dot a"></span><span class="dot"></span><span class="dot"></span><span class="url">parul-campus-transit · Feedback</span></div>
+      <img src="img/feedback.png" alt="Feedback screenshot">
+    </div>
+    <div class="callouts">
+      <div class="callout"><b>Star rating</b><span>Riders rate the trip 1–5 stars per bus.</span></div>
+      <div class="callout"><b>Comments</b><span>Free-text feedback stored on the Python backend.</span></div>
+      <div class="callout"><b>Recent feed</b><span>Latest reviews shown back to the whole campus.</span></div>
+    </div>
+  </section>
+
+  <!-- 9. ARCHITECTURE -->
+  <section class="slide" data-num="09">
+    <p class="eyebrow">System design</p>
+    <h2>Architecture</h2>
+    <p class="lead">A React single-page app talks to a Python HTTP API. When published as a static site (no server), it transparently falls back to an identical in-browser engine — so it always works.</p>
+    <div class="arch">
+      <div class="node"><span class="tag">Frontend</span><h3>React + Vite</h3><p>Departure board, Track, Driver console &amp; Feedback. Polls the API every 3 s and shares GPS via the browser Geolocation API.</p></div>
+      <div class="arrow">⇄</div>
+      <div class="node"><span class="tag">API</span><h3>Python backend</h3><p><code>server/app.py</code> serves buses, routes &amp; feedback and computes average speed + arrival predictions. Vite launches it automatically.</p></div>
+      <div class="arrow">⇄</div>
+      <div class="node"><span class="tag">Fallback</span><h3>In-browser engine</h3><p>Mirrors the exact same data &amp; maths so the published static site works with no server running.</p></div>
+    </div>
+  </section>
+
+  <!-- 10. FORMULA -->
+  <section class="slide" data-num="10">
+    <p class="eyebrow">The maths (done in Python)</p>
+    <h2>How arrival time is predicted</h2>
+    <div class="formula">
+      <div class="eq">
+        effective speed = <b>avg(driver's reported speeds)</b> × <code>traffic multiplier</code><br><br>
+        arrival&nbsp;time = ( <b>distance remaining</b> ÷ effective speed ) × 60&nbsp;min
+      </div>
+      <div class="note">
+        Distance remaining is measured from the stop the driver last reported — <b>no GPS needed for the prediction</b>. The server keeps a rolling history of reported speeds, so the average smooths out sudden changes. This transparent model can later be swapped for a machine-learning model trained on historical GPS + traffic data.
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. TECH STACK -->
+  <section class="slide" data-num="11">
+    <p class="eyebrow">Implementation</p>
+    <h2>Technology stack</h2>
+    <div class="stack">
+      <div class="box"><h3>Frontend</h3><ul><li>React 19</li><li>Vite 8</li><li>Tailwind CSS v4</li><li>TypeScript</li><li>Geolocation API</li></ul></div>
+      <div class="box"><h3>Backend</h3><ul><li>Python 3 (standard library)</li><li>HTTP JSON REST API</li><li>In-memory data store</li><li>Server-side ETA maths</li></ul></div>
+      <div class="box"><h3>Integrations</h3><ul><li>OpenStreetMap live map</li><li>Vite dev proxy → API</li><li>Auto-launched backend</li><li>Static-publish fallback</li></ul></div>
+    </div>
+    <p class="lead" style="margin-top:26px;">API endpoints: <code>GET /api/state</code> · <code>POST /api/buses</code> · <code>PATCH /api/buses/:id</code> · <code>POST /api/feedback</code></p>
+  </section>
+
+  <!-- 12. CONCLUSION -->
+  <section class="slide end" data-num="12">
+    <h2>A low-cost, live bus tracker<br>built for <span class="amber">real campus use</span></h2>
+    <p>Drivers share their stop and GPS in one tap; students get accurate arrivals, live seats and a map — with a Python backend doing the predictions.<br><br><b>Future scope:</b> student login, push notifications, historical ML-based ETAs, and a persistent database.</p>
+  </section>
+
+</div>
+
+<script>
+  // Arrow-key slide navigation
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  let idx = 0;
+  function go(n){
+    idx = Math.max(0, Math.min(slides.length - 1, n));
+    slides[idx].scrollIntoView({behavior:'smooth', block:'start'});
+  }
+  document.addEventListener('keydown', e => {
+    if(['ArrowDown','ArrowRight','PageDown',' '].includes(e.key)){ e.preventDefault(); go(idx+1); }
+    if(['ArrowUp','ArrowLeft','PageUp'].includes(e.key)){ e.preventDefault(); go(idx-1); }
+  });
+  // Track which slide is in view so arrows continue from there
+  const io = new IntersectionObserver(entries=>{
+    entries.forEach(en=>{ if(en.isIntersecting) idx = slides.indexOf(en.target); });
+  },{threshold:.5});
+  slides.forEach(s=>io.observe(s));
+</script>
+</body>
+</html>

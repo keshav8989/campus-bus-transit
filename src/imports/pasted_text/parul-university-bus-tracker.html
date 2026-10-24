@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parul University — Live Bus Tracker &amp; Arrival Predictor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#12213B;
+    --navy-2:#1C3363;
+    --navy-3:#233F73;
+    --amber:#F2B705;
+    --red:#D7263D;
+    --blue:#2A5CD1;
+    --green:#1F9D55;
+    --paper:#EEF1F6;
+    --card:#FFFFFF;
+    --ink:#12213B;
+    --ink-soft:#5A6480;
+    --line:#DDE3EE;
+    --radius:16px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif;}
+  .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+
+  /* ---------- Layout shell ---------- */
+  .shell{max-width:1180px;margin:0 auto;padding:0 20px 80px;}
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    background:var(--navy);
+    color:#fff;
+    border-bottom:3px solid var(--amber);
+  }
+  .topbar-inner{
+    max-width:1180px;margin:0 auto;padding:14px 20px;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  }
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand-mark{
+    width:38px;height:38px;border-radius:10px;background:var(--amber);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--navy);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;
+    flex-shrink:0;
+  }
+  .brand-text .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#B9C4E0;font-weight:600;}
+  .brand-text h1{font-size:19px;margin:0;font-weight:700;letter-spacing:-.01em;}
+  .topbar-right{display:flex;align-items:center;gap:18px;}
+  .clock{font-size:13px;color:#CBD5EF;display:flex;align-items:center;gap:8px;}
+  .live-dot{width:8px;height:8px;border-radius:50%;background:var(--amber);animation:pulse 1.6s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.75);}}
+
+  nav.tabs{display:flex;gap:4px;background:rgba(255,255,255,.06);padding:4px;border-radius:12px;}
+  nav.tabs button{
+    background:transparent;border:none;color:#C6D0EA;padding:8px 14px;border-radius:9px;
+    font-size:13px;font-weight:600;letter-spacing:.01em;transition:.15s;
+  }
+  nav.tabs button.active{background:var(--amber);color:var(--navy);}
+  nav.tabs button:not(.active):hover{background:rgba(255,255,255,.08);color:#fff;}
+
+  /* ---------- Notice banner ---------- */
+  .notice{
+    background:#FFF7DE;border:1px solid #F1D77A;color:#5A4A0A;
+    font-size:13px;line-height:1.5;padding:12px 16px;border-radius:12px;
+    margin:20px 0;display:flex;gap:10px;align-items:flex-start;
+  }
+  .notice b{color:#3C3005;}
+  .notice button{
+    background:none;border:none;color:#8A7208;font-size:12px;font-weight:700;
+    text-decoration:underline;margin-left:auto;flex-shrink:0;
+  }
+
+  /* ---------- Section heading ---------- */
+  .section-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin:34px 0 16px;flex-wrap:wrap;}
+  .section-head .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:700;margin:0 0 4px;}
+  .section-head h2{font-size:24px;margin:0;font-weight:700;letter-spacing:-.01em;}
+  .section-head p{margin:4px 0 0;color:var(--ink-soft);font-size:13.5px;}
+
+  /* ---------- Search ---------- */
+  .search-row{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
+  .search-row input{
+    flex:1;min-width:220px;padding:11px 14px;border-radius:10px;border:1.5px solid var(--line);
+    font-size:14px;font-family:inherit;background:#fff;
+  }
+  .search-row input:focus{outline:none;border-color:var(--blue);}
+  .chip-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .chip{
+    border:1.5px solid var(--line);background:#fff;padding:7px 13px;border-radius:999px;
+    font-size:12.5px;font-weight:600;color:var(--ink-soft);
+  }
+  .chip.active{border-color:var(--blue);background:#EAF0FE;color:var(--blue);}
+
+  /* ---------- Departure board ---------- */
+  .board{
+    background:var(--navy);
+    border-radius:var(--radius);
+    padding:6px;
+    box-shadow:0 20px 40px -20px rgba(18,33,59,.5);
+  }
+  .board-head{
+    display:grid;grid-template-columns:1.6fr 1fr 1.1fr .9fr .9fr;
+    padding:12px 18px;color:#8CA1D6;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;
+  }
+  .board-row{
+    display:grid;grid-template-columns:1.6fr 1fr 1.1fr .9fr .9fr;
+    align-items:center;
+    background:var(--navy-2);
+    margin:3px 0;padding:14px 18px;border-radius:11px;
+    color:#fff;cursor:pointer;transition:background .15s;
+    border-left:3px solid transparent;
+  }
+  .board-row:hover{background:var(--navy-3);}
+  .board-row.parked{opacity:.55;cursor:default;}
+  .board-row .route-name{font-weight:600;font-size:14px;}
+  .board-row .bus-tag{font-size:11.5px;color:#9FB0DC;margin-top:2px;}
+  .board-row .next-stop{font-size:13px;color:#D8E0F5;}
+  .eta-cell{display:flex;flex-direction:column;}
+  .eta-num{font-size:22px;font-weight:700;color:var(--amber);line-height:1;}
+  .eta-num.flash{animation:flashnum .5s;}
+  @keyframes flashnum{0%{opacity:.2;transform:translateY(-3px);}100%{opacity:1;transform:translateY(0);}}
+  .eta-unit{font-size:10px;color:#8CA1D6;text-transform:uppercase;letter-spacing:.08em;margin-top:2px;}
+  .status-pill{
+    font-size:10.5px;font-weight:700;letter-spacing:.05em;padding:4px 9px;border-radius:999px;
+    display:inline-block;text-transform:uppercase;width:fit-content;
+  }
+  .status-onroute{background:#153A24;color:#5FE39A;}
+  .status-delayed{background:#3B1620;color:#FF8C9C;}
+  .status-parked{background:#2A2F3D;color:#9AA3B8;}
+  .seats{font-size:12.5px;color:#C6D0EA;}
+  .seats b{color:#fff;}
+
+  @media (max-width:760px){
+    .board-head{display:none;}
+    .board-row{grid-template-columns:1fr;gap:6px;}
+    .eta-cell{flex-direction:row;align-items:baseline;gap:6px;}
+  }
+
+  /* ---------- Cards ---------- */
+  .card{background:var(--card);border-radius:var(--radius);border:1px solid var(--line);padding:22px;}
+
+  /* ---------- Track view ---------- */
+  .track-grid{display:grid;grid-template-columns:1.3fr .9fr;gap:20px;}
+  @media (max-width:860px){.track-grid{grid-template-columns:1fr;}}
+
+  .track-header{
+    background:var(--navy);color:#fff;border-radius:var(--radius);padding:22px 24px;margin-bottom:18px;
+    display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;
+  }
+  .track-header h3{margin:0 0 4px;font-size:22px;}
+  .track-header .sub{color:#B9C4E0;font-size:13px;}
+  .rating-stars{color:var(--amber);font-size:14px;letter-spacing:1px;}
+
+  .rail{position:relative;padding-left:26px;}
+  .rail::before{
+    content:"";position:absolute;left:8px;top:6px;bottom:6px;width:3px;
+    background:var(--line);border-radius:3px;
+  }
+  .rail-fill{
+    position:absolute;left:8px;top:6px;width:3px;background:var(--blue);border-radius:3px;
+    transition:height .6s ease;
+  }
+  .stop{position:relative;padding:0 0 26px;}
+  .stop:last-child{padding-bottom:2px;}
+  .stop-dot{
+    position:absolute;left:-26px;top:1px;width:19px;height:19px;border-radius:50%;
+    background:#fff;border:3px solid var(--line);display:flex;align-items:center;justify-content:center;
+  }
+  .stop.reached .stop-dot{border-color:var(--green);background:var(--green);}
+  .stop.current .stop-dot{border-color:var(--blue);box-shadow:0 0 0 5px #DCE6FE;}
+  .stop-name{font-weight:600;font-size:14.5px;}
+  .stop-meta{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+  .stop-eta{font-size:12.5px;font-weight:700;margin-top:2px;}
+  .stop.reached .stop-eta{color:var(--green);}
+  .stop:not(.reached) .stop-eta{color:var(--blue);}
+
+  .panel{margin-bottom:16px;}
+  .panel h4{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);}
+  .gauge-row{display:flex;align-items:center;gap:12px;}
+  .gauge-bar{flex:1;height:10px;background:var(--line);border-radius:999px;overflow:hidden;}
+  .gauge-fill{height:100%;background:var(--blue);border-radius:999px;transition:width .5s;}
+  .gauge-label{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;white-space:nowrap;}
+
+  .btn{
+    border:none;border-radius:10px;padding:11px 16px;font-weight:600;font-size:13.5px;
+    display:inline-flex;align-items:center;gap:8px;justify-content:center;
+  }
+  .btn-primary{background:var(--blue);color:#fff;}
+  .btn-primary:hover{background:#2149B0;}
+  .btn-outline{background:#fff;border:1.5px solid var(--line);color:var(--ink);}
+  .btn-outline:hover{border-color:var(--blue);color:var(--blue);}
+  .btn-danger{background:var(--red);color:#fff;width:100%;padding:16px;font-size:15px;border-radius:12px;}
+  .btn-danger:hover{background:#B81E33;}
+  .btn-block{width:100%;}
+  .btn-full-row{display:flex;gap:10px;margin-top:14px;}
+
+  .info-toggle{font-size:12.5px;color:var(--blue);font-weight:600;background:none;border:none;padding:0;text-decoration:underline;}
+  .formula-box{
+    margin-top:12px;background:#F5F8FF;border:1px solid #DCE6FE;border-radius:10px;padding:14px 16px;
+    font-size:12.5px;color:#334066;line-height:1.6;display:none;
+  }
+  .formula-box.open{display:block;}
+  .formula-box code{background:#E4ECFF;padding:1px 6px;border-radius:5px;font-family:'IBM Plex Mono',monospace;}
+
+  /* ---------- Toast ---------- */
+  #toast{
+    position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--navy);color:#fff;padding:13px 20px;border-radius:12px;font-size:13.5px;
+    box-shadow:0 12px 30px -8px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:.25s;
+    display:flex;align-items:center;gap:10px;z-index:50;max-width:90vw;
+  }
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  #toast.alert{background:var(--red);}
+  #toast .dot{width:8px;height:8px;border-radius:50%;background:var(--amber);flex-shrink:0;}
+
+  /* ---------- Forms (driver / feedback) ---------- */
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:600px){.form-grid{grid-template-columns:1fr;}}
+  label{font-size:12.5px;font-weight:600;color:var(--ink-soft);display:block;margin-bottom:6px;}
+  input[type=text],input[type=password],input[type=number],select,textarea{
+    width:100%;padding:11px 13px;border-radius:9px;border:1.5px solid var(--line);
+    font-size:14px;font-family:inherit;background:#fff;
+  }
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);}
+  .field{margin-bottom:14px;}
+  textarea{resize:vertical;min-height:80px;}
+
+  .slider-row{display:flex;align-items:center;gap:14px;}
+  input[type=range]{flex:1;accent-color:var(--blue);}
+  .stepper{display:flex;align-items:center;gap:14px;}
+  .stepper button{
+    width:38px;height:38px;border-radius:10px;border:1.5px solid var(--line);background:#fff;
+    font-size:18px;font-weight:700;color:var(--navy);
+  }
+  .stepper button:hover{border-color:var(--blue);color:var(--blue);}
+  .stepper .count{font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:700;min-width:56px;text-align:center;}
+
+  .segmented{display:flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;}
+  .segmented button{flex:1;padding:10px;background:#fff;border:none;font-size:12.5px;font-weight:600;color:var(--ink-soft);border-right:1.5px solid var(--line);}
+  .segmented button:last-child{border-right:none;}
+  .segmented button.active{background:var(--navy);color:#fff;}
+
+  .fb-item{border-bottom:1px solid var(--line);padding:14px 0;}
+  .fb-item:last-child{border-bottom:none;}
+  .fb-top{display:flex;justify-content:space-between;align-items:baseline;}
+  .fb-bus{font-weight:700;font-size:13.5px;}
+  .fb-stars{color:var(--amber);font-size:13px;}
+  .fb-comment{font-size:13.5px;color:var(--ink-soft);margin-top:4px;}
+
+  .hidden{display:none !important;}
+  .empty{text-align:center;padding:50px 20px;color:var(--ink-soft);font-size:13.5px;}
+  .small-note{font-size:11.5px;color:var(--ink-soft);margin-top:10px;line-height:1.5;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">PU</div>
+      <div class="brand-text">
+        <div class="eyebrow">Parul University</div>
+        <h1>Campus Bus Transit</h1>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="clock"><span class="live-dot"></span><span id="clockText" class="mono">--:--:--</span></div>
+      <nav class="tabs" id="tabs">
+        <button data-view="board" class="active">Departures</button>
+        <button data-view="track">Track Bus</button>
+        <button data-view="driver">Driver Console</button>
+        <button data-view="feedback">Feedback</button>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+
+  <div class="notice">
+    <span>⚡</span>
+    <div>
+      <b>Working prototype — no setup needed.</b> Every bus, route and passenger count here is simulated in your browser, so arrival times update live even though there's no Google Maps key, MongoDB, or GPS connected. Swap the <code>ROUTES</code>/<code>BUSES</code> objects and the <code>predictETA()</code> function for real data and this becomes production logic.
+    </div>
+    <button onclick="document.querySelector('.notice').remove()">Dismiss</button>
+  </div>
+
+  <!-- ============ DEPARTURE BOARD VIEW ============ -->
+  <section id="view-board">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Live arrivals</p>
+        <h2>Next buses from your stop</h2>
+        <p>Predicted arrival times refresh automatically as each bus moves along its route.</p>
+      </div>
+    </div>
+
+    <div class="search-row">
+      <input id="stopSearch" type="text" placeholder="Search a stop — e.g. Waghodia Chokdi, Genda Circle…">
+    </div>
+    <div class="chip-row" id="routeFilters" style="margin-bottom:18px;"></div>
+
+    <div class="board">
+      <div class="board-head">
+        <div>Route</div><div>Next stop</div><div>Status</div><div>Arrives in</div><div>Seats</div>
+      </div>
+      <div id="boardRows"></div>
+    </div>
+  </section>
+
+  <!-- ============ TRACK VIEW ============ -->
+  <section id="view-track" class="hidden">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Live tracking</p>
+        <h2 id="trackTitle">Track a bus</h2>
+      </div>
+    </div>
+    <div id="trackContent"></div>
+  </section>
+
+  <!-- ============ DRIVER CONSOLE VIEW ============ -->
+  <section id="view-driver" class="hidden">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Driver console</p>
+        <h2>Run today's trip</h2>
+        <p>Adjust speed and traffic below — students' predicted arrival times recalculate instantly.</p>
+      </div>
+    </div>
+
+    <div class="track-grid">
+      <div>
+        <div class="card panel">
+          <h4>Select your bus</h4>
+          <select id="driverBusSelect"></select>
+        </div>
+
+        <div class="card panel">
+          <h4>Trip status</h4>
+          <div class="segmented" id="tripSegment">
+            <button data-status="active">On route</button>
+            <button data-status="inactive">Parked</button>
+          </div>
+        </div>
+
+        <div class="card panel">
+          <h4>Current speed</h4>
+          <div class="slider-row">
+            <input type="range" id="speedSlider" min="8" max="55" value="28">
+            <span class="mono" id="speedLabel" style="min-width:70px;">28 km/h</span>
+          </div>
+        </div>
+
+        <div class="card panel">
+          <h4>Traffic condition</h4>
+          <div class="segmented" id="trafficSegment">
+            <button data-traffic="1.15">Light</button>
+            <button data-traffic="0.85" class="active">Moderate</button>
+            <button data-traffic="0.5">Heavy</button>
+          </div>
+        </div>
+
+        <div class="card panel">
+          <h4>Passengers on board</h4>
+          <div class="stepper">
+            <button id="passDec">−</button>
+            <span class="count mono" id="passCount">0</span>
+            <span style="color:var(--ink-soft);font-size:13px;">/ <span id="passCap">60</span></span>
+            <button id="passInc">+</button>
+          </div>
+        </div>
+
+        <button class="btn btn-danger" id="panicBtn">🚨 Panic — Alert Dispatch</button>
+      </div>
+
+      <div>
+        <div class="card">
+          <h4 style="margin:0 0 14px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);">What students see right now</h4>
+          <div id="driverPreview"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FEEDBACK VIEW ============ -->
+  <section id="view-feedback" class="hidden">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Ride feedback</p>
+        <h2>Rate your trip</h2>
+      </div>
+    </div>
+
+    <div class="track-grid">
+      <div class="card">
+        <div class="field">
+          <label>Bus number</label>
+          <select id="fbBus"></select>
+        </div>
+        <div class="field">
+          <label>Rating</label>
+          <div id="starPicker" style="font-size:26px;letter-spacing:6px;color:var(--line);cursor:pointer;">★★★★★</div>
+        </div>
+        <div class="field">
+          <label>Comments</label>
+          <textarea id="fbComment" placeholder="On time, driver was careful, AC was working…"></textarea>
+        </div>
+        <button class="btn btn-primary btn-block" id="fbSubmit">Submit feedback</button>
+      </div>
+
+      <div class="card">
+        <h4 style="margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);">Recent feedback</h4>
+        <div id="fbList"></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div id="toast"><span class="dot"></span><span id="toastText"></span></div>
+
+<script>
+/* =========================================================================
+   PARUL UNIVERSITY — BUS TIMING PREDICTION PROTOTYPE
+   Pure front-end simulation. Replace ROUTES / BUSES with API data and
+   predictETA() with a real model (or your Node/Express + MongoDB backend
+   from the original project) to go to production.
+   ========================================================================= */
+
+// ---------- Sample data (swap with real route geometry / API) ----------
+const ROUTES = {
+  r1: {
+    name: "Vadodara Railway Station Line",
+    stations: [
+      { name: "Vadodara Railway Station", km: 0 },
+      { name: "Genda Circle",             km: 4.2 },
+      { name: "Gorwa",                    km: 9.6 },
+      { name: "Waghodia Chokdi",          km: 15.8 },
+      { name: "Parul Campus Main Gate",   km: 21.5 },
+      { name: "Academic Block 5",         km: 22.7 },
+    ]
+  },
+  r2: {
+    name: "Karelibaug — Sama Line",
+    stations: [
+      { name: "Karelibaug",       km: 0 },
+      { name: "Sama Savli Road",  km: 5.1 },
+      { name: "Harni",            km: 10.4 },
+      { name: "Waghodia Road",    km: 16.9 },
+      { name: "Parul Campus",     km: 20.3 },
+    ]
+  },
+  r3: {
+    name: "Ajwa — Chhani Line",
+    stations: [
+      { name: "Ajwa Road",     km: 0 },
+      { name: "Chhani",        km: 6.7 },
+      { name: "Waghodia",      km: 13.2 },
+      { name: "Parul Campus",  km: 18.4 },
+    ]
+  }
+};
+
+const BUSES = [
+  { id:"pu14", number:"PU-14", plate:"GJ06 XV 4471", route:"r1", driver:"Ramesh Patel",   contact:"+91 98250 11122", status:"active",   progressKm:2.1,  speed:28, traffic:0.85, passengers:34, capacity:60, rating:4.4 },
+  { id:"pu22", number:"PU-22", plate:"GJ06 XV 8890", route:"r2", driver:"Sanjay Chauhan",  contact:"+91 98250 33445", status:"active",   progressKm:11.0, speed:24, traffic:0.85, passengers:51, capacity:60, rating:4.1 },
+  { id:"pu08", number:"PU-08", plate:"GJ06 XV 2207", route:"r3", driver:"Vikram Solanki",  contact:"+91 98250 55667", status:"inactive", progressKm:0,    speed:26, traffic:0.85, passengers:0,  capacity:50, rating:4.7 },
+];
+
+const feedbackData = [
+  { bus:"PU-14", stars:5, comment:"Right on time this morning, driver announced each stop." },
+  { bus:"PU-22", stars:4, comment:"A little crowded near Harni but predicted ETA was accurate." },
+];
+
+let currentTrackBus = "pu14";
+let selectedStars = 5;
+
+// ---------- Prediction model (transparent, swappable) ----------
+// effective speed = driver-reported base speed × traffic multiplier
+// ETA to a stop (minutes) = distance remaining (km) / effective speed (km/h) × 60
+function effectiveSpeed(bus){
+  return Math.max(4, bus.speed * bus.traffic);
+}
+function predictETA(bus, stationKm){
+  const remaining = stationKm - bus.progressKm;
+  if (remaining <= 0) return 0;
+  const mins = (remaining / effectiveSpeed(bus)) * 60;
+  return Math.max(0, mins);
+}
+function fmtEta(mins){
+  if (mins <= 0) return { num:"0", unit:"arrived" };
+  if (mins < 1) return { num:"<1", unit:"min" };
+  if (mins < 60) return { num: Math.round(mins).toString(), unit:"min" };
+  return { num:(mins/60).toFixed(1), unit:"hrs" };
+}
+
+// ---------- Clock ----------
+function tickClock(){
+  document.getElementById("clockText").textContent = new Date().toLocaleTimeString('en-IN',{hour12:false});
+}
+setInterval(tickClock, 1000); tickClock();
+
+// ---------- Toast ----------
+let toastTimer;
+function showToast(msg, alert=false){
+  const t = document.getElementById("toast");
+  document.getElementById("toastText").textContent = msg;
+  t.classList.toggle("alert", alert);
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove("show"), 3200);
+}
+
+// ---------- Tabs ----------
+document.getElementById("tabs").addEventListener("click", (e)=>{
+  const btn = e.target.closest("button[data-view]");
+  if(!btn) return;
+  document.querySelectorAll("#tabs button").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  ["board","track","driver","feedback"].forEach(v=>{
+    document.getElementById("view-"+v).classList.toggle("hidden", v!==btn.dataset.view);
+  });
+  if(btn.dataset.view==="track") renderTrack();
+});
+
+function goToTrack(busId){
+  currentTrackBus = busId;
+  document.querySelectorAll("#tabs button").forEach(b=>b.classList.remove("active"));
+  document.querySelector('#tabs button[data-view="track"]').classList.add("active");
+  ["board","track","driver","feedback"].forEach(v=>{
+    document.getElementById("view-"+v).classList.toggle("hidden", v!=="track");
+  });
+  renderTrack();
+}
+
+// ---------- Route filter chips ----------
+function renderFilters(){
+  const wrap = document.getElementById("routeFilters");
+  wrap.innerHTML = `<button class="chip active" data-r="all">All routes</button>` +
+    Object.entries(ROUTES).map(([id,r])=>`<button class="chip" data-r="${id}">${r.name}</button>`).join("");
+  wrap.querySelectorAll(".chip").forEach(chip=>{
+    chip.addEventListener("click", ()=>{
+      wrap.querySelectorAll(".chip").forEach(c=>c.classList.remove("active"));
+      chip.classList.add("active");
+      renderBoard();
+    });
+  });
+}
+
+// ---------- Departure board ----------
+function nextStopFor(bus){
+  const route = ROUTES[bus.route];
+  return route.stations.find(s => s.km > bus.progressKm) || route.stations[route.stations.length-1];
+}
+
+function renderBoard(){
+  const search = document.getElementById("stopSearch").value.trim().toLowerCase();
+  const activeChip = document.querySelector("#routeFilters .chip.active");
+  const routeFilter = activeChip ? activeChip.dataset.r : "all";
+
+  const rows = document.getElementById("boardRows");
+  const visible = BUSES.filter(bus=>{
+    if(routeFilter!=="all" && bus.route!==routeFilter) return false;
+    if(search){
+      const route = ROUTES[bus.route];
+      const matchesStop = route.stations.some(s=>s.name.toLowerCase().includes(search));
+      const matchesRoute = route.name.toLowerCase().includes(search);
+      const matchesBus = bus.number.toLowerCase().includes(search);
+      if(!matchesStop && !matchesRoute && !matchesBus) return false;
+    }
+    return true;
+  });
+
+  if(visible.length===0){
+    rows.innerHTML = `<div class="empty">No buses match that stop right now. Try another search.</div>`;
+    return;
+  }
+
+  rows.innerHTML = visible.map(bus=>{
+    const route = ROUTES[bus.route];
+    const stop = nextStopFor(bus);
+    const mins = predictETA(bus, stop.km);
+    const eta = fmtEta(mins);
+    const parked = bus.status==="inactive";
+    const delayed = !parked && bus.traffic < 0.7;
+    const statusClass = parked ? "status-parked" : (delayed ? "status-delayed" : "status-onroute");
+    const statusText = parked ? "Parked" : (delayed ? "Delayed" : "On route");
+    return `
+      <div class="board-row ${parked?'parked':''}" data-bus="${bus.id}">
+        <div>
+          <div class="route-name">${route.name}</div>
+          <div class="bus-tag">${bus.number} • ${bus.driver}</div>
+        </div>
+        <div class="next-stop">${stop.name}</div>
+        <div><span class="status-pill ${statusClass}">${statusText}</span></div>
+        <div class="eta-cell">
+          <span class="eta-num mono">${parked ? "—" : eta.num}</span>
+          <span class="eta-unit">${parked ? "not running" : eta.unit}</span>
+        </div>
+        <div class="seats"><b>${bus.passengers}</b>/${bus.capacity} seats</div>
+      </div>`;
+  }).join("");
+
+  rows.querySelectorAll(".board-row:not(.parked)").forEach(row=>{
+    row.addEventListener("click", ()=>goToTrack(row.dataset.bus));
+  });
+}
+
+// ---------- Track view ----------
+// Returns the header + stop rail + gauges for a given bus. Reused by both
+// the student "Track Bus" view and the driver console's live preview.
+function renderBusDetailHTML(bus, {showActions=true, formulaId="formulaBox"} = {}){
+  const route = ROUTES[bus.route];
+  const totalKm = route.stations[route.stations.length-1].km;
+  const pct = Math.min(100, (bus.progressKm/totalKm)*100);
+
+  const stopsHtml = route.stations.map((s,i)=>{
+    const reached = s.km <= bus.progressKm;
+    const isCurrent = !reached && route.stations.slice(0,i).every(p=>p.km<=bus.progressKm);
+    const mins = predictETA(bus, s.km);
+    const eta = fmtEta(mins);
+    return `
+      <div class="stop ${reached?'reached':''} ${isCurrent?'current':''}">
+        <div class="stop-dot"></div>
+        <div class="stop-name">${s.name}</div>
+        <div class="stop-meta">${s.km.toFixed(1)} km from origin</div>
+        <div class="stop-eta mono">${reached ? "Reached" : `${eta.num} ${eta.unit} away`}</div>
+      </div>`;
+  }).join("");
+
+  return `
+    <div class="track-header">
+      <div>
+        <h3>${bus.number} <span style="color:#8CA1D6;font-weight:400;">· ${bus.plate}</span></h3>
+        <div class="sub">${bus.driver} · ${bus.contact}</div>
+        <div class="rating-stars" style="margin-top:8px;">${"★".repeat(Math.round(bus.rating))}${"☆".repeat(5-Math.round(bus.rating))} <span style="color:#B9C4E0;font-size:12px;">${bus.rating.toFixed(1)}</span></div>
+      </div>
+      <span class="status-pill ${bus.status==='active' ? (bus.traffic<0.7?'status-delayed':'status-onroute') : 'status-parked'}">
+        ${bus.status==='active' ? (bus.traffic<0.7?'Delayed':'On route') : 'Parked'}
+      </span>
+    </div>
+
+    <div class="track-grid">
+      <div class="card">
+        <h4 style="margin:0 0 16px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);">Stop-by-stop arrival</h4>
+        <div class="rail">${stopsHtml}</div>
+      </div>
+
+      <div>
+        <div class="card panel">
+          <h4>Passengers on board</h4>
+          <div class="gauge-row">
+            <div class="gauge-bar"><div class="gauge-fill" style="width:${(bus.passengers/bus.capacity*100).toFixed(0)}%"></div></div>
+            <span class="gauge-label">${bus.passengers}/${bus.capacity}</span>
+          </div>
+        </div>
+
+        <div class="card panel">
+          <h4>Trip progress</h4>
+          <div class="gauge-row">
+            <div class="gauge-bar"><div class="gauge-fill" style="width:${pct.toFixed(0)}%;background:var(--amber);"></div></div>
+            <span class="gauge-label">${pct.toFixed(0)}%</span>
+          </div>
+          <button class="info-toggle" style="margin-top:10px;" onclick="document.getElementById('${formulaId}').classList.toggle('open')">How is this arrival time calculated?</button>
+          <div class="formula-box" id="${formulaId}">
+            Arrival time = (distance remaining ÷ effective speed) × 60.<br>
+            Effective speed = driver's current speed (<code>${bus.speed} km/h</code>) × traffic multiplier (<code>${bus.traffic}</code>).<br>
+            This is a simple, explainable model you can later replace with a machine-learning model trained on historical GPS + traffic data.
+          </div>
+        </div>
+
+        ${showActions ? `
+        <div class="btn-full-row">
+          <button class="btn btn-outline btn-block" onclick="goToFeedback('${bus.number}')">Rate this ride</button>
+          <button class="btn btn-primary btn-block" onclick="showToast('🚨 SOS sent to campus dispatch with live location.', true)">SOS</button>
+        </div>` : ""}
+      </div>
+    </div>
+  `;
+}
+
+function renderTrack(){
+  const bus = BUSES.find(b=>b.id===currentTrackBus) || BUSES[0];
+  const route = ROUTES[bus.route];
+  document.getElementById("trackTitle").textContent = `${bus.number} — ${route.name}`;
+
+  const picker = `
+    <div class="chip-row" style="margin-bottom:18px;">
+      ${BUSES.map(b=>`<button class="chip ${b.id===bus.id?'active':''}" data-pick="${b.id}">${b.number}</button>`).join("")}
+    </div>`;
+
+  document.getElementById("trackContent").innerHTML = picker + renderBusDetailHTML(bus, {showActions:true, formulaId:"formulaBox"});
+
+  document.querySelectorAll("[data-pick]").forEach(chip=>{
+    chip.addEventListener("click", ()=>{ currentTrackBus = chip.dataset.pick; renderTrack(); });
+  });
+}
+
+function goToFeedback(busNumber){
+  document.querySelectorAll("#tabs button").forEach(b=>b.classList.remove("active"));
+  document.querySelector('#tabs button[data-view="feedback"]').classList.add("active");
+  ["board","track","driver","feedback"].forEach(v=>{
+    document.getElementById("view-"+v).classList.toggle("hidden", v!=="feedback");
+  });
+  document.getElementById("fbBus").value = busNumber;
+}
+
+// ---------- Driver console ----------
+function populateDriverSelect(){
+  const sel = document.getElementById("driverBusSelect");
+  sel.innerHTML = BUSES.map(b=>`<option value="${b.id}">${b.number} — ${ROUTES[b.route].name}</option>`).join("");
+  sel.addEventListener("change", refreshDriverPanel);
+}
+
+function currentDriverBus(){
+  return BUSES.find(b=>b.id===document.getElementById("driverBusSelect").value) || BUSES[0];
+}
+
+function refreshDriverPanel(){
+  const bus = currentDriverBus();
+  document.querySelectorAll("#tripSegment button").forEach(b=>b.classList.toggle("active", b.dataset.status===bus.status));
+  document.getElementById("speedSlider").value = bus.speed;
+  document.getElementById("speedLabel").textContent = bus.speed + " km/h";
+  document.querySelectorAll("#trafficSegment button").forEach(b=>b.classList.toggle("active", parseFloat(b.dataset.traffic)===bus.traffic));
+  document.getElementById("passCount").textContent = bus.passengers;
+  document.getElementById("passCap").textContent = bus.capacity;
+  document.getElementById("driverPreview").innerHTML = renderBusDetailHTML(bus, {showActions:false, formulaId:"formulaBoxDriver"});
+}
+
+document.getElementById("tripSegment").addEventListener("click", e=>{
+  const btn = e.target.closest("button"); if(!btn) return;
+  currentDriverBus().status = btn.dataset.status;
+  refreshDriverPanel(); renderBoard();
+});
+document.getElementById("trafficSegment").addEventListener("click", e=>{
+  const btn = e.target.closest("button"); if(!btn) return;
+  currentDriverBus().traffic = parseFloat(btn.dataset.traffic);
+  refreshDriverPanel(); renderBoard();
+});
+document.getElementById("speedSlider").addEventListener("input", e=>{
+  currentDriverBus().speed = parseInt(e.target.value,10);
+  document.getElementById("speedLabel").textContent = e.target.value + " km/h";
+  refreshDriverPanel(); renderBoard();
+});
+document.getElementById("passInc").addEventListener("click", ()=>{
+  const bus = currentDriverBus();
+  if(bus.passengers < bus.capacity) bus.passengers++;
+  refreshDriverPanel();
+});
+document.getElementById("passDec").addEventListener("click", ()=>{
+  const bus = currentDriverBus();
+  if(bus.passengers > 0) bus.passengers--;
+  refreshDriverPanel();
+});
+document.getElementById("panicBtn").addEventListener("click", ()=>{
+  showToast("🚨 Panic alert broadcast to all riders on this route + campus security.", true);
+});
+
+// ---------- Feedback ----------
+function populateFeedbackSelect(){
+  document.getElementById("fbBus").innerHTML = BUSES.map(b=>`<option value="${b.number}">${b.number} — ${ROUTES[b.route].name}</option>`).join("");
+}
+function renderStars(){
+  document.getElementById("starPicker").innerHTML =
+    [1,2,3,4,5].map(i=>`<span data-s="${i}" style="color:${i<=selectedStars?'var(--amber)':'var(--line)'}">★</span>`).join("");
+}
+document.getElementById("starPicker").addEventListener("click", e=>{
+  const s = e.target.closest("[data-s]"); if(!s) return;
+  selectedStars = parseInt(s.dataset.s,10);
+  renderStars();
+});
+function renderFeedbackList(){
+  const list = document.getElementById("fbList");
+  if(feedbackData.length===0){ list.innerHTML = `<div class="empty">No feedback yet.</div>`; return; }
+  list.innerHTML = feedbackData.slice().reverse().map(f=>`
+    <div class="fb-item">
+      <div class="fb-top"><span class="fb-bus">${f.bus}</span><span class="fb-stars">${"★".repeat(f.stars)}${"☆".repeat(5-f.stars)}</span></div>
+      <div class="fb-comment">${f.comment}</div>
+    </div>`).join("");
+}
+document.getElementById("fbSubmit").addEventListener("click", ()=>{
+  const bus = document.getElementById("fbBus").value;
+  const comment = document.getElementById("fbComment").value.trim();
+  if(!comment){ showToast("Add a quick comment before submitting."); return; }
+  feedbackData.push({ bus, stars: selectedStars, comment });
+  document.getElementById("fbComment").value = "";
+  selectedStars = 5; renderStars();
+  renderFeedbackList();
+  showToast("Thanks — your feedback was submitted.");
+});
+
+// ---------- Simulation loop: moves every active bus, refreshes visible view ----------
+setInterval(()=>{
+  BUSES.forEach(bus=>{
+    if(bus.status!=="active") return;
+    const route = ROUTES[bus.route];
+    const totalKm = route.stations[route.stations.length-1].km;
+    const simulatedMinutes = 1; // each tick = 1 simulated minute
+    bus.progressKm += (effectiveSpeed(bus) * (simulatedMinutes/60));
+    if(bus.progressKm >= totalKm){
+      bus.progressKm = totalKm;
+      bus.status = "inactive"; // trip complete -> parked
+    }
+  });
+  if(!document.getElementById("view-board").classList.contains("hidden")) renderBoard();
+  if(!document.getElementById("view-track").classList.contains("hidden")) renderTrack();
+  if(!document.getElementById("view-driver").classList.contains("hidden")) refreshDriverPanel();
+}, 2500);
+
+document.getElementById("stopSearch").addEventListener("input", renderBoard);
+
+// ---------- Init ----------
+renderFilters();
+renderBoard();
+populateDriverSelect();
+refreshDriverPanel();
+populateFeedbackSelect();
+renderStars();
+renderFeedbackList();
+</script>
+</body>
+</html>
